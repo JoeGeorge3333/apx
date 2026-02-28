@@ -9,5 +9,7 @@ command:
   - "2"
 
 env:
+  - name: PYTHONPATH
+    value: "src"
   - name: DATABRICKS_SQL_WAREHOUSE_ID
     value: ""  # Set to your SQL Warehouse ID for Unity Catalog queries

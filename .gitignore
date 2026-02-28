@@ -12,9 +12,6 @@ wheels/
 # version file
 src/agile_ish_v3/_version.py
 
-# metadata file
-src/agile_ish_v3/_metadata.py
-
 # build files
 dist
 

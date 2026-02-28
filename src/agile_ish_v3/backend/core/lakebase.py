@@ -31,8 +31,10 @@ class DatabaseConfig(BaseSettings):
     database_name: str = Field(
         description="The name of the database", default="databricks_postgres"
     )
-    instance_name: str = Field(
-        description="The name of the database instance", validation_alias="PGAPPNAME"
+    instance_name: str | None = Field(
+        default=None,
+        description="The name of the database instance (PGAPPNAME); omit to skip Lakebase",
+        validation_alias="PGAPPNAME",
     )
 
 
@@ -148,8 +150,13 @@ class _LakebaseDependency(LifespanDependency):
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncGenerator[None, None]:
         db_config = DatabaseConfig()  # ty: ignore[missing-argument]
-        ws = app.state.workspace_client
+        if not db_config.instance_name:
+            logger.info("PGAPPNAME not set; skipping Lakebase (database) initialization")
+            app.state.engine = None
+            yield
+            return
 
+        ws = app.state.workspace_client
         engine = create_db_engine(db_config, ws)
         validate_db(engine, db_config)
         initialize_models(engine)
@@ -160,6 +167,10 @@ class _LakebaseDependency(LifespanDependency):
 
     @staticmethod
     def __call__(request: Request) -> Generator[Session, None, None]:
+        if request.app.state.engine is None:
+            raise RuntimeError(
+                "Database not configured. Add a Lakebase resource to the app (PGAPPNAME)."
+            )
         with Session(bind=request.app.state.engine) as session:
             yield session
 

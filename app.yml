@@ -1,0 +1,13 @@
+command:
+  - uvicorn
+  - agile_ish_v3.backend.app:app
+  - --host
+  - "0.0.0.0"
+  - --port
+  - "8080"
+  - --workers
+  - "2"
+
+env:
+  - name: DATABRICKS_SQL_WAREHOUSE_ID
+    value: ""  # Set to your SQL Warehouse ID for Unity Catalog queries

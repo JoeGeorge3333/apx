@@ -1,0 +1,32 @@
+bundle:
+  name: "agile-ish-v3"
+
+sync:
+  include:
+    - .build
+
+artifacts:
+  default:
+    build: apx build
+
+resources:
+  database_instances:
+    agile-ish-v3-db:
+      name: "agile-ish-v3"
+      capacity: "CU_1"
+  apps:
+    agile-ish-v3-app:
+      name: "agile-ish-v3"
+      description: "agile-ish-v3 created with apx"
+      source_code_path: ./.build
+      resources:
+        - name: "db"
+          database:
+            database_name: "databricks_postgres"
+            instance_name: ${resources.database_instances.agile-ish-v3-db.name}
+            permission: "CAN_CONNECT_AND_CREATE"
+
+targets:
+  dev:
+    mode: development
+    default: true
